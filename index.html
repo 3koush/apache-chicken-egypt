@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>عرض سعر - Donuts Media لـ Apache Chicken</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="animated-bg">
+        <div class="circle circle-1"></div>
+        <div class="circle circle-2"></div>
+        <div class="circle circle-3"></div>
+        <div class="particles" id="particles"></div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="logos-container">
+                <div class="logo-wrapper fade-in-up" style="animation-delay: 0.2s">
+                    <img src="donuts_media_logo.png" alt="Donuts Media" class="logo">
+                </div>
+                <div class="arrow-icon fade-in" style="animation-delay: 0.5s">
+                    <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </div>
+                <div class="logo-wrapper fade-in-up" style="animation-delay: 0.8s">
+                    <img src="apache_chicken_logo.png" alt="Apache Chicken" class="logo">
+                </div>
+            </div>
+            
+            <h1 class="main-title fade-in-up" style="animation-delay: 1s">
+                عرض سعر حصري
+            </h1>
+            <p class="subtitle fade-in-up" style="animation-delay: 1.2s">
+                باقة التسويق والإنتاج المرئي الاحترافية
+            </p>
+            
+            <div class="price-tag fade-in-up" style="animation-delay: 1.4s">
+                <span class="price-label">السعر الإجمالي</span>
+                <span class="price-value">
+                    <span class="currency">جنيه</span>
+                    <span class="amount" id="price-counter">15,000</span>
+                </span>
+            </div>
+
+            <button class="cta-button fade-in-up" style="animation-delay: 1.6s" onclick="scrollToContact()">
+                <span>تواصل معنا الآن</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+            </button>
+        </div>
+
+        <div class="scroll-indicator">
+            <div class="mouse">
+                <div class="wheel"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Package Content Section -->
+    <section class="package-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title reveal-text">
+                    <span class="emoji">🎬</span>
+                    محتوى الباقة
+                </h2>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card" data-index="0">
+                    <div class="feature-icon">
+                        <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/>
+                            <line x1="7" y1="2" x2="7" y2="22"/>
+                            <line x1="17" y1="2" x2="17" y2="22"/>
+                            <line x1="2" y1="12" x2="22" y2="12"/>
+                            <line x1="2" y1="7" x2="7" y2="7"/>
+                            <line x1="2" y1="17" x2="7" y2="17"/>
+                            <line x1="17" y1="17" x2="22" y2="17"/>
+                            <line x1="17" y1="7" x2="22" y2="7"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">6 فيديوهات احترافية</h3>
+                    <p class="feature-description">
+                        إنتاج 6 فيديوهات بأعلى جودة باستخدام معدات احترافية ومتطورة تبرز هوية مطعمكم بشكل مميز
+                    </p>
+                    <div class="feature-number">01</div>
+                </div>
+
+                <div class="feature-card" data-index="1">
+                    <div class="feature-icon">
+                        <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">أفكار مبتكرة ومخصصة</h3>
+                    <p class="feature-description">
+                        تنفيذ محتوى إبداعي مصمم خصيصاً لهوية مطعمكم يجذب الانتباه ويحقق التفاعل المطلوب
+                    </p>
+                    <div class="feature-number">02</div>
+                </div>
+
+                <div class="feature-card" data-index="2">
+                    <div class="feature-icon">
+                        <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                            <polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">محتوى قابل للانتشار (Viral)</h3>
+                    <p class="feature-description">
+                        التركيز على إنتاج محتوى له القدرة على الانتشار السريع بدون الحاجة إلى إعلانات ممولة
+                    </p>
+                    <div class="feature-number">03</div>
+                </div>
+
+                <div class="feature-card" data-index="3">
+                    <div class="feature-icon">
+                        <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">فريق متخصص</h3>
+                    <p class="feature-description">
+                        إشراف كامل من فريق محترف في التصوير والإخراج والمونتاج لضمان أعلى مستوى من الجودة
+                    </p>
+                    <div class="feature-number">04</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Us Section -->
+    <section class="why-us-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title reveal-text">
+                    <span class="emoji">📈</span>
+                    ما يميزنا
+                </h2>
+            </div>
+
+            <div class="why-us-content">
+                <div class="why-us-card">
+                    <div class="card-glow"></div>
+                    <div class="card-content">
+                        <div class="icon-wrapper">
+                            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                            </svg>
+                        </div>
+                        <h3>تأثير حقيقي</h3>
+                        <p>نحن لا نقدم فقط محتوى بصري، بل نصنع تأثيراً حقيقياً على السوشيال ميديا</p>
+                    </div>
+                </div>
+
+                <div class="why-us-card">
+                    <div class="card-glow"></div>
+                    <div class="card-content">
+                        <div class="icon-wrapper">
+                            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 3v18h18"/>
+                                <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/>
+                            </svg>
+                        </div>
+                        <h3>نتائج مثبتة</h3>
+                        <p>سنشارككم مجموعة من البرندات والأرقام التي حققناها مع عملائنا في شتى المجالات</p>
+                    </div>
+                </div>
+
+                <div class="why-us-card">
+                    <div class="card-glow"></div>
+                    <div class="card-content">
+                        <div class="icon-wrapper">
+                            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <polyline points="12 6 12 12 16 14"/>
+                            </svg>
+                        </div>
+                        <h3>خبرة متنوعة</h3>
+                        <p>عملنا مع مطاعم، شركات، محلات تجارية، وعلامات مختلفة بنتائج استثنائية</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" data-target="6">0</div>
+                    <div class="stat-label">فيديوهات احترافية</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" data-target="100">0</div>
+                    <div class="stat-label">جودة عالية %</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" data-target="15000">0</div>
+                    <div class="stat-label">جنيه مصري فقط</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" data-target="0">0</div>
+                    <div class="stat-label">إعلانات ممولة مطلوبة</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact-section" id="contact">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title reveal-text">
+                    تواصل معنا
+                </h2>
+                <p class="section-subtitle">لأي استفسار أو تنسيق، يسعدنا التواصل</p>
+            </div>
+
+            <div class="contact-card">
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                            </svg>
+                        </div>
+                        <div class="contact-details">
+                            <h4>الهاتف</h4>
+                            <a href="tel:01022021473" class="contact-link">01022021473</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="brand-statement">
+                    <img src="donuts_media_logo.png" alt="Donuts Media" class="footer-logo">
+                    <h3 class="tagline">نخلق محتوى.. يصنع الفرق</h3>
+                    <p class="closing">مع خالص التحية والتقدير،<br>فريق Donuts Media</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Donuts Media. جميع الحقوق محفوظة.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
