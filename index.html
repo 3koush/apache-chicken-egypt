@@ -2,264 +2,349 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>عرض سعر - Donuts Media لـ Apache Chicken</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Chemistry Masterclass - Dr. Eman Mahmoud</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #ff0055;
+            --secondary: #ff00cc;
+            --bg-grad: radial-gradient(circle at center, #1a0b1c 0%, #000000 100%);
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            margin: 0; padding: 0;
+            font-family: 'Cairo', sans-serif;
+            background: var(--bg-grad);
+            height: 100dvh; /* Dynamic Height for Mobile */
+            overflow: hidden;
+            color: white;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        /* --- Canvas Background --- */
+        #molecule-canvas {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0; pointer-events: none;
+        }
+
+        /* --- Top Controls --- */
+        .top-bar {
+            position: fixed; top: 20px; left: 20px; z-index: 2000;
+        }
+        .btn-glass {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white; padding: 8px 20px; border-radius: 50px;
+            backdrop-filter: blur(5px); cursor: pointer;
+            font-family: 'Rajdhani', sans-serif; font-weight: bold;
+            display: flex; align-items: center; gap: 8px; transition: 0.2s;
+        }
+        .btn-glass:hover { background: var(--primary); transform: scale(1.05); }
+
+        /* --- Main Slide Container --- */
+        .slide-deck {
+            position: relative;
+            width: 90%; max-width: 1000px;
+            height: 70vh; max-height: 700px; min-height: 400px;
+            z-index: 10;
+        }
+
+        .slide {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(20, 10, 30, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: clamp(1rem, 4vw, 3rem);
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+            opacity: 0; visibility: hidden;
+            overflow-y: auto; overflow-x: hidden; /* Scroll for small screens */
+        }
+
+        /* Scrollbar styling */
+        .slide::-webkit-scrollbar { width: 4px; }
+        .slide::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
+
+        /* Icons & Text */
+        .slide-icon {
+            width: clamp(70px, 10vw, 100px); height: clamp(70px, 10vw, 100px);
+            background: rgba(255, 0, 85, 0.1); border: 2px solid var(--primary);
+            border-radius: 50%; display: flex; justify-content: center; align-items: center;
+            font-size: clamp(2rem, 5vw, 3.5rem); color: white;
+            box-shadow: 0 0 30px var(--primary); margin-bottom: 20px;
+            flex-shrink: 0;
+            animation: pulse 3s infinite;
+        }
+        @keyframes pulse { 50% { box-shadow: 0 0 50px var(--secondary); } }
+
+        h1 { font-size: clamp(1.5rem, 4vw, 2.5rem); font-weight: 800; margin-bottom: 10px; color: white; }
+        h2 { font-size: clamp(1rem, 2.5vw, 1.4rem); color: var(--secondary); margin-bottom: 20px; font-family: 'Rajdhani', sans-serif; text-transform: uppercase; }
+        
+        ul { padding: 0; text-align: right; width: 100%; max-width: 600px; margin-bottom: 20px; }
+        li {
+            background: linear-gradient(90deg, rgba(255,255,255,0.05) 0%, transparent 100%);
+            margin: 8px 0; padding: 10px 15px; border-radius: 8px; border-right: 4px solid var(--primary);
+            font-size: clamp(0.9rem, 2.5vw, 1.2rem); display: flex; align-items: center; gap: 10px;
+        }
+
+        .slide-footer { margin-top: auto; font-size: 0.9rem; opacity: 0.8; font-style: italic; color: #ffb3d9; flex-shrink: 0; }
+        .keyword { background: var(--primary); padding: 3px 8px; border-radius: 5px; font-family: 'Rajdhani', sans-serif; }
+
+        /* --- CONTROL LAYER (The Fix) --- */
+        .controls-layer {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; /* Allows clicking through empty space */
+            z-index: 1000; /* Highest layer */
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 20px;
+        }
+
+        .nav-btn {
+            pointer-events: auto; /* Re-enable clicking for buttons */
+            width: 60px; height: 60px; border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            color: white; font-size: 1.5rem; cursor: pointer;
+            display: flex; justify-content: center; align-items: center;
+            transition: 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .nav-btn:hover { background: var(--primary); transform: scale(1.1); box-shadow: 0 0 25px var(--primary); }
+        .nav-btn:active { transform: scale(0.95); }
+
+        /* Progress Bar */
+        .progress-container { position: fixed; bottom: 0; left: 0; width: 100%; height: 5px; background: rgba(255,255,255,0.1); z-index: 2000; }
+        .progress-bar { height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); width: 0%; transition: width 0.3s; }
+
+        /* --- MOBILE LAYOUT ADJUSTMENTS --- */
+        @media (max-width: 768px) {
+            .slide-deck { width: 92%; height: 75dvh; } /* More vertical space */
+            
+            /* Change controls from Side-by-Side to Bottom-Center */
+            .controls-layer {
+                align-items: flex-end; /* Push to bottom */
+                justify-content: center; /* Center horizontally */
+                padding-bottom: 20px; /* Space from bottom edge */
+                gap: 40px; /* Space between buttons */
+            }
+
+            .nav-btn {
+                width: 55px; height: 55px;
+                background: rgba(0, 0, 0, 0.6); /* Darker for better contrast on mobile */
+                border-color: var(--primary);
+            }
+            
+            /* Move prev/next logic visually */
+            .nav-btn i { font-size: 1.2rem; }
+        }
+    </style>
 </head>
 <body>
-    <!-- Animated Background -->
-    <div class="animated-bg">
-        <div class="circle circle-1"></div>
-        <div class="circle circle-2"></div>
-        <div class="circle circle-3"></div>
-        <div class="particles" id="particles"></div>
+
+    <canvas id="molecule-canvas"></canvas>
+
+    <div class="top-bar">
+        <button id="fs-btn" class="btn-glass"><i class="fas fa-expand"></i> &nbsp; Full</button>
     </div>
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="container">
-            <div class="logos-container">
-                <div class="logo-wrapper fade-in-up" style="animation-delay: 0.2s">
-                    <img src="donuts_media_logo.png" alt="Donuts Media" class="logo">
-                </div>
-                <div class="arrow-icon fade-in" style="animation-delay: 0.5s">
-                    <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M5 12h14M12 5l7 7-7 7"/>
-                    </svg>
-                </div>
-                <div class="logo-wrapper fade-in-up" style="animation-delay: 0.8s">
-                    <img src="apache_chicken_logo.png" alt="Apache Chicken" class="logo">
-                </div>
-            </div>
+    <div class="slide-deck" id="deck"></div>
+
+    <div class="controls-layer">
+        <button id="prev-btn" class="nav-btn">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+        
+        <button id="next-btn" class="nav-btn">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+    </div>
+
+    <div class="progress-container"><div id="progress" class="progress-bar"></div></div>
+
+    <script>
+        // Data
+        const slidesData = [
+            { icon: "fa-atom", title: "How to Get a Full Mark", subtitle: "Tips & Tricks for Smart Students", content: `<h3 style="margin-top:20px; font-size:clamp(1.2rem, 3vw, 1.5rem);">Dr. Eman Mahmoud</h3><p style="color:var(--secondary)">Chemistry Instructor</p>`, footer: '"اشتغل بذكاء مش بمجهود أكتر"' },
+            { icon: "fa-file-circle-xmark", title: "Why Do Students Lose Marks?", subtitle: "ليه بنضيع درجات؟", list: ["Lack of focus أثناء الحل", "Misreading the question", "Rushing to choose the answer", "Overthinking simple questions"], footer: "الامتحان مش صعب… طريقة الحل هي اللي بتفرق" },
+            { icon: "fa-brain", title: "Mindset Before the Exam", subtitle: "Your mindset = 50% of your result", list: ["Calm down & Don’t panic", "Every question has a logic behind it", "Trust your preparation", "Confidence + Strategy = Full Mark"], footer: "Stay Positive" },
+            { icon: "fa-magnifying-glass-chart", title: "Tip #1 – Search for Keywords", subtitle: "دور على Keywords في السؤال", content: `<div style="margin-top:20px; line-height:2;"><span class="keyword">MOST / LEAST</span> <span class="keyword">NOT / EXCEPT</span><br><span class="keyword">TRUE / FALSE</span> <span class="keyword">INCREASE / DECREASE</span></div>`, footer: "كلمة واحدة ممكن تغيّر الإجابة كلها" },
+            { icon: "fa-book-open-reader", title: "Tip #2 – Read Very Carefully", subtitle: "اقرأ السؤال كويس جدًا", list: ["Read the question twice", "Underline important words", "Understand what is required", "Don’t answer fast… answer smart"], footer: "Focus is key" },
+            { icon: "fa-puzzle-piece", title: "Tip #3 – Match Answer with Choice", subtitle: "طابق إجابتك مع الاختيارات", list: ["Don’t guess from the choices", "Solve first, then match", "Eliminate wrong answers", "The correct answer must fit 100%"], footer: "Precision matters" },
+            { icon: "fa-filter-circle-xmark", title: "Use the Elimination Method", subtitle: "استبعد الخطأ للوصول للصح", list: ["Remove illogical choices", "Remove extreme answers", "Narrow it down to 2 choices", "Higher probability = Correct answer"], footer: "Elimination Strategy" },
+            { icon: "fa-lightbulb", title: "Don’t Overthink Simple Questions", subtitle: "بلاش تعقّد البسيط", list: ["The simplest answer is usually right", "Exams test understanding, not فلسفة", "If it makes sense → it’s probably correct"], footer: "Keep it simple" },
+            { icon: "fa-stopwatch", title: "Manage Your Time", subtitle: "إدارة الوقت", list: ["Start with easy questions", "Mark hard questions and return later", "Don’t waste time on one question", "Equal marks for all questions"], footer: "Time is marks" },
+            { icon: "fa-list-check", title: "Read Again Before Submitting", subtitle: "راجع قبل التسليم", list: ["Check NOT / EXCEPT", "Check units & signs (+ / –)", "One second review = saved marks"], footer: "Double Check" },
+            { icon: "fa-microchip", title: "Use Logic, Not Memory", subtitle: "فكّر… متحفظش بس", list: ["Logic helps even if you forget", "فهم الفكرة أهم من حفظها", "Connect the dots", "Smart thinking beats memorization"], footer: "Be Logical" },
+            { icon: "fa-mask", title: "Avoid Common Exam Traps", subtitle: "خدع الامتحانات", list: ["Similar choices", "Long vs short answers", "Distracting extra information", "Examiner wants to test focus"], footer: "Stay Alert" },
+            { icon: "fa-crown", title: "Final Golden Tips", subtitle: "نصايح ذهبية للتقفيل", list: ["Sleep well before exam", "Read calmly & Trust yourself", "Stick to your strategy", "Full mark is achievable"], footer: "You can do it" },
+            { icon: "fa-thumbtack", title: "Remember This", subtitle: "الخلاصة", list: ["Exam is not about luck", "It’s about طريقة تفكير", "Strategy > Effort", "Work smart, score smart"], footer: "Be Smart" },
+            { icon: "fa-graduation-cap", title: "Thank You", subtitle: "Dr. Eman Mahmoud", content: `<h2 style="color:var(--primary); font-size:2rem; margin-top:20px; border:none;">Good Luck!</h2>`, footer: '"النجاح مش صدفة… النجاح قرار"' }
+        ];
+
+        const deck = document.getElementById('deck');
+
+        // Render Slides
+        slidesData.forEach(s => {
+            const el = document.createElement('div');
+            el.className = 'slide';
+            let listHTML = s.list ? `<ul>${s.list.map(i => `<li><i class="fas fa-check-circle"></i> ${i}</li>`).join('')}</ul>` : '';
+            el.innerHTML = `
+                <div class="slide-icon"><i class="fas ${s.icon}"></i></div>
+                <h1>${s.title}</h1>
+                <h2>${s.subtitle}</h2>
+                ${s.content || ''}
+                ${listHTML}
+                <div class="slide-footer">${s.footer}</div>
+            `;
+            deck.appendChild(el);
+        });
+
+        const slides = document.querySelectorAll('.slide');
+        let currentIndex = 0;
+        let isAnimating = false;
+
+        // Init First Slide
+        gsap.set(slides, { autoAlpha: 0 });
+        gsap.set(slides[0], { autoAlpha: 1 });
+        animateContent(0);
+        updateProgress();
+
+        // Animate Inner Content
+        function animateContent(index) {
+            const parts = slides[index].querySelectorAll('.slide-icon, h1, h2, li, .slide-footer');
+            gsap.fromTo(parts, 
+                { y: 30, opacity: 0 }, 
+                { y: 0, opacity: 1, duration: 0.5, stagger: 0.05, ease: "power2.out" }
+            );
+        }
+
+        // Change Slide Logic
+        function changeSlide(direction) {
+            if(isAnimating) return;
             
-            <h1 class="main-title fade-in-up" style="animation-delay: 1s">
-                عرض سعر حصري
-            </h1>
-            <p class="subtitle fade-in-up" style="animation-delay: 1.2s">
-                باقة التسويق والإنتاج المرئي الاحترافية
-            </p>
+            let nextIndex = direction === 'next' ? currentIndex + 1 : currentIndex - 1;
             
-            <div class="price-tag fade-in-up" style="animation-delay: 1.4s">
-                <span class="price-label">السعر الإجمالي</span>
-                <span class="price-value">
-                    <span class="currency">جنيه</span>
-                    <span class="amount" id="price-counter">15,000</span>
-                </span>
-            </div>
+            // Boundary Checks
+            if (nextIndex >= slides.length || nextIndex < 0) return;
 
-            <button class="cta-button fade-in-up" style="animation-delay: 1.6s" onclick="scrollToContact()">
-                <span>تواصل معنا الآن</span>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M5 12h14M12 5l7 7-7 7"/>
-                </svg>
-            </button>
-        </div>
+            isAnimating = true;
+            const currentSlide = slides[currentIndex];
+            const nextSlide = slides[nextIndex];
+            
+            // RTL Logic: Next (Forward) moves to Left (-50%), Prev moves to Right (50%)
+            const xMove = direction === 'next' ? -50 : 50; 
 
-        <div class="scroll-indicator">
-            <div class="mouse">
-                <div class="wheel"></div>
-            </div>
-        </div>
-    </section>
+            // Timeline
+            const tl = gsap.timeline({
+                onComplete: () => {
+                    currentIndex = nextIndex;
+                    isAnimating = false;
+                    updateProgress();
+                }
+            });
 
-    <!-- Package Content Section -->
-    <section class="package-section">
-        <div class="container">
-            <div class="section-header">
-                <h2 class="section-title reveal-text">
-                    <span class="emoji">🎬</span>
-                    محتوى الباقة
-                </h2>
-            </div>
+            // Outgoing
+            tl.to(currentSlide, { xPercent: xMove, opacity: 0, scale: 0.9, duration: 0.4, ease: "power2.inOut" })
+            // Incoming
+              .fromTo(nextSlide, 
+                { xPercent: -xMove, opacity: 0, scale: 0.9, autoAlpha: 1 }, 
+                { xPercent: 0, opacity: 1, scale: 1, duration: 0.4, ease: "power2.out" }, 
+                "-=0.2"
+            );
 
-            <div class="features-grid">
-                <div class="feature-card" data-index="0">
-                    <div class="feature-icon">
-                        <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/>
-                            <line x1="7" y1="2" x2="7" y2="22"/>
-                            <line x1="17" y1="2" x2="17" y2="22"/>
-                            <line x1="2" y1="12" x2="22" y2="12"/>
-                            <line x1="2" y1="7" x2="7" y2="7"/>
-                            <line x1="2" y1="17" x2="7" y2="17"/>
-                            <line x1="17" y1="17" x2="22" y2="17"/>
-                            <line x1="17" y1="7" x2="22" y2="7"/>
-                        </svg>
-                    </div>
-                    <h3 class="feature-title">6 فيديوهات احترافية</h3>
-                    <p class="feature-description">
-                        إنتاج 6 فيديوهات بأعلى جودة باستخدام معدات احترافية ومتطورة تبرز هوية مطعمكم بشكل مميز
-                    </p>
-                    <div class="feature-number">01</div>
-                </div>
+            animateContent(nextIndex);
+        }
 
-                <div class="feature-card" data-index="1">
-                    <div class="feature-icon">
-                        <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                        </svg>
-                    </div>
-                    <h3 class="feature-title">أفكار مبتكرة ومخصصة</h3>
-                    <p class="feature-description">
-                        تنفيذ محتوى إبداعي مصمم خصيصاً لهوية مطعمكم يجذب الانتباه ويحقق التفاعل المطلوب
-                    </p>
-                    <div class="feature-number">02</div>
-                </div>
+        // Event Listeners
+        document.getElementById('next-btn').addEventListener('click', () => changeSlide('prev'));
+        document.getElementById('prev-btn').addEventListener('click', () => changeSlide('next'));
 
-                <div class="feature-card" data-index="2">
-                    <div class="feature-icon">
-                        <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                            <polyline points="22 4 12 14.01 9 11.01"/>
-                        </svg>
-                    </div>
-                    <h3 class="feature-title">محتوى قابل للانتشار (Viral)</h3>
-                    <p class="feature-description">
-                        التركيز على إنتاج محتوى له القدرة على الانتشار السريع بدون الحاجة إلى إعلانات ممولة
-                    </p>
-                    <div class="feature-number">03</div>
-                </div>
+        // Fullscreen
+        const fsBtn = document.getElementById('fs-btn');
+        fsBtn.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+                fsBtn.innerHTML = '<i class="fas fa-compress"></i> &nbsp; Exit';
+            } else {
+                document.exitFullscreen();
+                fsBtn.innerHTML = '<i class="fas fa-expand"></i> &nbsp; Full';
+            }
+        });
 
-                <div class="feature-card" data-index="3">
-                    <div class="feature-icon">
-                        <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                            <circle cx="9" cy="7" r="4"/>
-                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                        </svg>
-                    </div>
-                    <h3 class="feature-title">فريق متخصص</h3>
-                    <p class="feature-description">
-                        إشراف كامل من فريق محترف في التصوير والإخراج والمونتاج لضمان أعلى مستوى من الجودة
-                    </p>
-                    <div class="feature-number">04</div>
-                </div>
-            </div>
-        </div>
-    </section>
+        // Keyboard & Swipe
+        document.addEventListener('keydown', (e) => {
+            if(e.key === "ArrowLeft" || e.key === " " || e.key === "Enter") changeSlide('next');
+            if(e.key === "ArrowRight") changeSlide('prev');
+        });
 
-    <!-- Why Us Section -->
-    <section class="why-us-section">
-        <div class="container">
-            <div class="section-header">
-                <h2 class="section-title reveal-text">
-                    <span class="emoji">📈</span>
-                    ما يميزنا
-                </h2>
-            </div>
+        let touchStartX = 0;
+        document.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, false);
+        document.addEventListener('touchend', e => {
+            let touchEndX = e.changedTouches[0].screenX;
+            if (touchEndX < touchStartX - 50) changeSlide('next'); // Swipe Left -> Next
+            if (touchEndX > touchStartX + 50) changeSlide('prev'); // Swipe Right -> Prev
+        }, false);
 
-            <div class="why-us-content">
-                <div class="why-us-card">
-                    <div class="card-glow"></div>
-                    <div class="card-content">
-                        <div class="icon-wrapper">
-                            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                            </svg>
-                        </div>
-                        <h3>تأثير حقيقي</h3>
-                        <p>نحن لا نقدم فقط محتوى بصري، بل نصنع تأثيراً حقيقياً على السوشيال ميديا</p>
-                    </div>
-                </div>
+        function updateProgress() {
+            document.getElementById('progress').style.width = ((currentIndex + 1) / slides.length * 100) + "%";
+        }
 
-                <div class="why-us-card">
-                    <div class="card-glow"></div>
-                    <div class="card-content">
-                        <div class="icon-wrapper">
-                            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M3 3v18h18"/>
-                                <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/>
-                            </svg>
-                        </div>
-                        <h3>نتائج مثبتة</h3>
-                        <p>سنشارككم مجموعة من البرندات والأرقام التي حققناها مع عملائنا في شتى المجالات</p>
-                    </div>
-                </div>
+        // --- Simplified Particles (Better Performance) ---
+        const canvas = document.getElementById('molecule-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
 
-                <div class="why-us-card">
-                    <div class="card-glow"></div>
-                    <div class="card-content">
-                        <div class="icon-wrapper">
-                            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"/>
-                                <polyline points="12 6 12 12 16 14"/>
-                            </svg>
-                        </div>
-                        <h3>خبرة متنوعة</h3>
-                        <p>عملنا مع مطاعم، شركات، محلات تجارية، وعلامات مختلفة بنتائج استثنائية</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; initParticles(); }
+        
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 0.5; this.vy = (Math.random() - 0.5) * 0.5;
+                this.size = Math.random() * 2 + 1;
+            }
+            update() {
+                this.x += this.vx; this.y += this.vy;
+                if(this.x<0||this.x>canvas.width) this.vx*=-1; 
+                if(this.y<0||this.y>canvas.height) this.vy*=-1;
+            }
+            draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fillStyle="rgba(255,0,85,0.4)"; ctx.fill(); }
+        }
 
-    <!-- Stats Section -->
-    <section class="stats-section">
-        <div class="container">
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <div class="stat-value" data-target="6">0</div>
-                    <div class="stat-label">فيديوهات احترافية</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value" data-target="100">0</div>
-                    <div class="stat-label">جودة عالية %</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value" data-target="15000">0</div>
-                    <div class="stat-label">جنيه مصري فقط</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value" data-target="0">0</div>
-                    <div class="stat-label">إعلانات ممولة مطلوبة</div>
-                </div>
-            </div>
-        </div>
-    </section>
+        function initParticles() {
+            particles = [];
+            let count = window.innerWidth < 768 ? 15 : 30;
+            for(let i=0; i<count; i++) particles.push(new Particle());
+        }
 
-    <!-- Contact Section -->
-    <section class="contact-section" id="contact">
-        <div class="container">
-            <div class="section-header">
-                <h2 class="section-title reveal-text">
-                    تواصل معنا
-                </h2>
-                <p class="section-subtitle">لأي استفسار أو تنسيق، يسعدنا التواصل</p>
-            </div>
+        function animateCanvas() {
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            particles.forEach(p => {
+                p.update(); p.draw();
+                particles.forEach(p2 => {
+                    const d = Math.hypot(p.x-p2.x, p.y-p2.y);
+                    if(d<120) {
+                        ctx.beginPath(); ctx.strokeStyle=`rgba(255,0,85,${0.2-d/600})`;
+                        ctx.lineWidth=0.5; ctx.moveTo(p.x,p.y); ctx.lineTo(p2.x,p2.y); ctx.stroke();
+                    }
+                });
+            });
+            requestAnimationFrame(animateCanvas);
+        }
+        window.addEventListener('resize', resize);
+        resize(); animateCanvas();
 
-            <div class="contact-card">
-                <div class="contact-info">
-                    <div class="contact-item">
-                        <div class="contact-icon">
-                            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-                            </svg>
-                        </div>
-                        <div class="contact-details">
-                            <h4>الهاتف</h4>
-                            <a href="tel:01022021473" class="contact-link">01022021473</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="brand-statement">
-                    <img src="donuts_media_logo.png" alt="Donuts Media" class="footer-logo">
-                    <h3 class="tagline">نخلق محتوى.. يصنع الفرق</h3>
-                    <p class="closing">مع خالص التحية والتقدير،<br>فريق Donuts Media</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; 2025 Donuts Media. جميع الحقوق محفوظة.</p>
-        </div>
-    </footer>
-
-    <script src="script.js"></script>
+    </script>
 </body>
 </html>
-
